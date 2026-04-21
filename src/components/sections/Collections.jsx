@@ -3,6 +3,11 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Ruler, Circle, Settings } from 'lucide-react';
 
+import watchVanguard from '../../assets/watchs/vanguard.png';
+import watchAbyss from '../../assets/watchs/Abyss.png';
+import watchCelestial from '../../assets/watchs/celestial.png';
+import watchHeritage from '../../assets/watchs/heritage.png';
+
 gsap.registerPlugin(ScrollTrigger);
 
 const collectionsData = [
@@ -12,7 +17,7 @@ const collectionsData = [
     tagline: 'The Edge of Tomorrow',
     desc: 'Forged from brushed titanium, the Vanguard redefines modern horology with a skeletonized dial.',
     specs: { size: '42mm', material: 'Titanium', movement: 'Automatic Tourbillon' },
-    img: '' 
+    img: watchVanguard 
   },
   {
     id: '02',
@@ -20,7 +25,7 @@ const collectionsData = [
     tagline: 'Master the Depths',
     desc: 'Engineered for the extremes. Featuring a unidirectional ceramic bezel and luminescent markers.',
     specs: { size: '44mm', material: 'Obsidian Steel', movement: 'Chronometer' },
-    img: '' 
+    img: watchAbyss 
   },
   {
     id: '03',
@@ -28,7 +33,7 @@ const collectionsData = [
     tagline: 'Written in the Stars',
     desc: 'An astronomical complication on your wrist. The dial features a genuine meteorite plate.',
     specs: { size: '40mm', material: 'Rose Gold', movement: 'Perpetual Calendar' },
-    img: ''
+    img: watchCelestial
   },
   {
     id: '04',
@@ -36,7 +41,7 @@ const collectionsData = [
     tagline: 'Echoes of Greatness',
     desc: 'A tribute to the golden era of watchmaking. Classic proportions, domed sapphire crystal.',
     specs: { size: '38mm', material: 'Platinum', movement: 'Manual Wind' },
-    img: ''
+    img: watchHeritage
   }
 ];
 

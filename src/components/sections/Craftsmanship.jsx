@@ -10,25 +10,25 @@ const features = [
     icon: <Cog className="w-6 h-6 text-[#D4AF37]" />,
     title: "Micro-Tolerances",
     desc: "Machined to the absolute micron. Our in-house calibers are assembled in a vacuum-sealed cleanroom, ensuring friction is virtually eliminated.",
-    img: "" // Add a path to a close-up gear PNG or image here
+    img: "https://oracleoftime.com/wp-content/uploads/2025/04/Handmade-Watches-Featured.jpg" // Add a path to a close-up gear PNG or image here
   },
   {
     icon: <Gem className="w-6 h-6 text-[#D4AF37]" />,
     title: "Sapphire Architecture",
     desc: "Forged at 2,050°C, our sapphire crystals are coated with 7 layers of anti-reflective treatment, making the glass disappear to the naked eye.",
-    img: ""
+    img: "https://cdn.shopify.com/s/files/1/2652/4762/files/2_1.jpg?v=1749477000"
   },
   {
     icon: <Flame className="w-6 h-6 text-[#D4AF37]" />,
     title: "Heat-Blued Steel",
     desc: "Achieved not by paint, but by oxidizing steel hands over an open flame at exactly 290°C to achieve a flawless, permanent azure hue.",
-    img: ""
+    img: "https://i.ytimg.com/vi/483fHa0Vaq8/maxresdefault.jpg"
   },
   {
     icon: <Layers className="w-6 h-6 text-[#D4AF37]" />,
     title: "Zaratsu Polishing",
     desc: "Our artisans spend up to 40 hours hand-polishing a single titanium case against a spinning tin plate to create a distortion-free mirror finish.",
-    img: ""
+    img: "https://cdn.i-scmp.com/sites/default/files/d8/images/canvas/2023/02/10/544c4a1d-8912-45f1-9009-0cf30e70e0a9_60807538.jpg"
   }
 ];
 
