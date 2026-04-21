@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { MapPin, CalendarDays, Globe } from 'lucide-react';
+import { MapPin, CalendarDays, Globe, ArrowRight, Clock } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,7 +13,7 @@ const boutiques = [
     address: 'Rue du Rhône 41, 1204 Genève',
     status: 'Flagship',
     timezone: 'GMT+1',
-    img: 'https://images.unsplash.com/photo-1542000551532-dfebfb3cb2b7?q=80&w=800&auto=format&fit=crop'
+    img: 'https://en.worldtempus.com/sites/default/files/media/article/a-lemeraude/emeraude-devanture.jpg'
   },
   {
     id: '02',
@@ -22,7 +22,7 @@ const boutiques = [
     address: '57th Street & 5th Ave, NY 10022',
     status: 'Open',
     timezone: 'GMT-5',
-    img: 'https://images.unsplash.com/photo-1522083111401-7c1bf2086e41?q=80&w=800&auto=format&fit=crop'
+    img: 'https://uploads.nationaljeweler.com/uploads/72a5fc792bde0ede0b5a0446f52d30c8.jpg'
   },
   {
     id: '03',
@@ -31,7 +31,7 @@ const boutiques = [
     address: 'Ginza 6-Chome, Chuo City, Tokyo 104-0061',
     status: 'Open',
     timezone: 'GMT+9',
-    img: 'https://images.unsplash.com/photo-1542051841857-4b71ed07a513?q=80&w=800&auto=format&fit=crop'
+    img: 'https://mkiiwatches.com/cdn/shop/articles/R0003673_1000x.jpg?v=1673893479'
   },
   {
     id: '04',
@@ -40,109 +40,78 @@ const boutiques = [
     address: 'Fashion Avenue, Dubai Mall',
     status: 'Opening Soon',
     timezone: 'GMT+4',
-    img: 'https://images.unsplash.com/photo-1582647509711-c8aa8a8b54cf?q=80&w=800&auto=format&fit=crop'
+    img: 'https://luxebook.in/wp-content/uploads/2023/12/WatchBox_and_Ahmed_Seddiqi-1.jpg'
   }
 ];
 
 export default function Boutique() {
   const containerRef = useRef(null);
-  const mapRef = useRef(null);
-  const listRef = useRef(null);
   const itemsRef = useRef([]);
-  const activePanelRef = useRef(null);
-  const beamRef = useRef(null);
-  const [activeImg, setActiveImg] = useState(boutiques[0].img);
+  const imageWrappersRef = useRef([]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const prevIndexRef = useRef(0);
 
+  // ==========================================
+  // GOD-LEVEL IMAGE SHUTTER LOGIC
+  // ==========================================
+  useEffect(() => {
+    // Prevent animation on initial mount
+    if (prevIndexRef.current === activeIndex) return;
+
+    const prevImg = imageWrappersRef.current[prevIndexRef.current];
+    const newImg = imageWrappersRef.current[activeIndex];
+
+    // 1. Kill any currently running animations to prevent rapid-hover glitching
+    gsap.killTweensOf(imageWrappersRef.current);
+
+    // 2. Reset all images to the deep background
+    gsap.set(imageWrappersRef.current, { zIndex: 0 });
+    
+    // 3. Set the previous image to sit directly behind the new one
+    // Force its clipPath open so there are no empty black spaces
+    gsap.set(prevImg, { zIndex: 1, clipPath: 'inset(0% 0 0 0)' });
+    
+    // 4. Prep the new image to wipe in from the bottom
+    gsap.set(newImg, { zIndex: 2, clipPath: 'inset(100% 0 0 0)' });
+
+    // 5. Execute the buttery smooth wipe
+    gsap.to(newImg, {
+      clipPath: 'inset(0% 0 0 0)',
+      duration: 0.7,
+      ease: 'power3.inOut',
+    });
+
+    // Update the ref for the next interaction
+    prevIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
+  // ==========================================
+  // INITIAL SCROLL REVEALS
+  // ==========================================
   useEffect(() => {
     let ctx = gsap.context(() => {
       let mm = gsap.matchMedia();
 
-      // ==========================================
-      // GLOBAL: ScrollTrigger Pinning
-      // ==========================================
-      ScrollTrigger.create({
-        trigger: containerRef.current,
-        pin: true, // Locks the section in place
-        start: "top top",
-        end: "+=150%", // How long it stays pinned
-        scrub: 1,
-      });
-
-      // 1. Procedural Map 3D Rotation on Scroll Velocity
-      // Makes the background feel like it has massive depth
-      gsap.to(mapRef.current, {
-        rotateX: 10,
-        rotateY: -10,
-        scale: 1.1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1.5,
-        }
-      });
-
-      // ==========================================
-      // DESKTOP: Advanced Mouse & Hover Effects
-      // ==========================================
+      // Desktop list stagger
       mm.add("(min-width: 1024px)", () => {
-        
-        const listItems = listRef.current.querySelectorAll('.boutique-item');
-
-        listItems.forEach((item, index) => {
-          const imgUrl = item.getAttribute('data-img');
-          const cityText = item.querySelector('.city-text');
-          const panel = item.querySelector('.sapphire-panel');
-          const details = item.querySelector('.item-details');
-
-          item.addEventListener('mouseenter', (e) => {
-            setActiveImg(imgUrl);
-            
-            // a. Draw the gold beam to this item's position
-            const itemTop = item.getBoundingClientRect().top - listRef.current.getBoundingClientRect().top;
-            gsap.to(beamRef.current, { y: itemTop, height: item.offsetHeight, opacity: 1, duration: 0.5, ease: "power3.out" });
-
-            // b. Activate the frosted sapphire panel behind the city text
-            gsap.to(panel, { opacity: 1, scaleX: 1, duration: 0.4, ease: "power4.out" });
-            gsap.to(cityText, { x: 20, color: "#ffffff", duration: 0.4, ease: "power2.out" });
-
-            // c. Reveal the extra details (timezone, region)
-            gsap.to(details, { opacity: 1, y: 0, duration: 0.5, delay: 0.1, ease: "power2.out" });
-          });
-
-          item.addEventListener('mouseleave', () => {
-            // Reverse everything
-            gsap.to(panel, { opacity: 0, scaleX: 0.9, duration: 0.3, ease: "power2.in" });
-            gsap.to(cityText, { x: 0, color: "#71717a", duration: 0.4, ease: "power2.out" }); // zinc-500
-            gsap.to(details, { opacity: 0, y: 10, duration: 0.3, ease: "power2.in" });
-            gsap.to(beamRef.current, { opacity: 0, duration: 0.3 }); // hide beam
-          });
-        });
-
-        // initial reveal of the list on scroll in
         gsap.fromTo(itemsRef.current, 
-          { y: 60, opacity: 0 },
+          { y: 40, opacity: 0 },
           { 
-            y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: "power4.out",
-            scrollTrigger: { trigger: listRef.current, start: "top 80%" }
+            y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: "power3.out",
+            scrollTrigger: { trigger: containerRef.current, start: "top 70%" }
           }
         );
       });
 
-      // ==========================================
-      // MOBILE: Stacked Layout Reveal
-      // ==========================================
+      // Mobile carousel slide up
       mm.add("(max-width: 1023px)", () => {
-        itemsRef.current.forEach((item) => {
-          gsap.fromTo(item, 
-            { y: 30, opacity: 0 },
-            { 
-              y: 0, opacity: 1, duration: 0.6, ease: "power2.out",
-              scrollTrigger: { trigger: item, start: "top 85%" }
-            }
-          );
-        });
+        gsap.fromTo(".mobile-carousel", 
+          { y: 50, opacity: 0 },
+          { 
+            y: 0, opacity: 1, duration: 0.8, ease: "power3.out",
+            scrollTrigger: { trigger: containerRef.current, start: "top 80%" }
+          }
+        );
       });
 
     }, containerRef);
@@ -150,127 +119,172 @@ export default function Boutique() {
     return () => ctx.revert();
   }, []);
 
+  const activeBoutique = boutiques[activeIndex];
+
   return (
     <section 
       ref={containerRef} 
       id="boutique" 
-      className="relative w-full h-screen bg-black overflow-hidden py-16 lg:py-0 cursor-default flex items-center"
+      className="relative w-full min-h-[100svh] bg-black py-20 lg:py-32 overflow-hidden"
     >
-      
-      {/* ========================================== */}
-      {/* GOD-LEVEL BACKGROUND: Fragmented Map + Image */}
-      {/* ========================================== */}
-      <div ref={mapRef} className="absolute inset-0 z-0 scale-[1.05] perspective-[2000px]">
-        {/* Procedural Grid Overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:100px_100px] pointer-events-none opacity-40"></div>
-        
-        {/* The active image blended into the background */}
-        <div className="absolute inset-0 overflow-hidden">
-          <img 
-            src={activeImg} 
-            alt="Boutique Location" 
-            className="w-full h-full object-cover grayscale opacity-[0.03] blur-sm transition-opacity duration-1000"
-          />
-        </div>
-        
-        {/* Ambient Gold Glows */}
-        <div className="absolute top-[30%] left-[20%] w-[500px] h-[500px] bg-[#D4AF37]/5 rounded-full blur-[150px]"></div>
-        <div className="absolute bottom-[20%] right-[10%] w-[300px] h-[300px] bg-[#D4AF37]/3 rounded-full blur-[100px]"></div>
-      </div>
+      {/* Subtle Background Texture */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] pointer-events-none z-0"></div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 flex flex-col h-full justify-center">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 h-full flex flex-col justify-center">
         
-        {/* Section Header - Clean and Minimal */}
-        <div className="w-full max-w-lg mb-12 lg:mb-20 self-start">
+        {/* Section Header */}
+        <div className="mb-12 lg:mb-20">
           <div className="flex items-center gap-4 mb-3">
             <span className="text-[#D4AF37] font-display text-lg">03.</span>
             <span className="h-[1px] w-12 bg-[#D4AF37]/50"></span>
-            <span className="uppercase tracking-[0.2em] text-zinc-600 text-xs md:text-sm">Global Presence</span>
+            <span className="uppercase tracking-[0.2em] text-zinc-500 text-sm">Global Network</span>
           </div>
-          <h2 className="text-4xl md:text-6xl font-display font-bold text-white tracking-tighter leading-tight">
-            The <span className="text-zinc-700 italic font-light">Boutiques.</span>
+          <h2 className="text-5xl md:text-7xl font-display font-bold text-white tracking-tighter">
+            The <span className="text-zinc-600 italic font-light">Boutiques.</span>
           </h2>
         </div>
 
-        {/* Massive Interactive List */}
-        <div className="relative w-full flex flex-col lg:flex-row items-center gap-12 lg:gap-20 h-[60vh]">
+        {/* ========================================== */}
+        {/* DESKTOP VIEW (Split Layout)                */}
+        {/* ========================================== */}
+        <div className="hidden lg:grid grid-cols-12 gap-12 items-center h-[65vh]">
           
-          {/* Vertical Gold Beam (desktop only) */}
-          <div 
-            ref={beamRef}
-            className="absolute left-0 top-0 w-[2px] h-20 bg-gradient-to-b from-[#D4AF37] to-[#D4AF37]/20 shadow-[0_0_15px_#D4AF37] z-10 opacity-0 hidden lg:block"
-          ></div>
+          {/* Left Column: Interactive React-Driven List */}
+          <div className="col-span-6 flex flex-col h-full justify-center space-y-2">
+            {boutiques.map((boutique, index) => {
+              const isActive = activeIndex === index;
+              
+              return (
+                <div 
+                  key={boutique.id} 
+                  ref={el => itemsRef.current[index] = el}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  className="group flex flex-col justify-center py-8 border-b border-white/5 w-full relative cursor-pointer"
+                >
+                  {/* Tailwind-driven Frosted Hover Panel */}
+                  <div className={`absolute inset-0 left-[-20px] right-[-20px] top-[5px] bottom-[5px] bg-white/[0.02] border border-[#D4AF37]/10 backdrop-blur-md rounded-2xl origin-left pointer-events-none transition-all duration-500 ease-out z-0 ${isActive ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-90'}`}>
+                    <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.8)]"></div>
+                  </div>
 
-          {/* City List */}
-          <div ref={listRef} className="flex-1 w-full flex flex-col h-full overflow-y-auto lg:overflow-y-visible pr-4 lg:pr-0 scrollbar-thin">
-            {boutiques.map((boutique, index) => (
-              <div 
-                key={index} 
-                data-img={boutique.img}
-                ref={el => itemsRef.current[index] = el}
-                className="boutique-item group flex flex-col items-start justify-center py-6 lg:py-10 border-b border-white/5 w-full relative transition-colors"
-              >
-                {/* ADVANCED: Sapphite Glass Panel hover effect (desktop) */}
-                <div className="sapphire-panel absolute inset-0 left-[-40px] right-[-40px] top-[10px] bottom-[10px] bg-[#0c0c0d]/80 border border-[#D4AF37]/10 backdrop-blur-2xl rounded-2xl scale-x-[0.9] origin-left opacity-0 hidden lg:block z-0 pointer-events-none">
-                  {/* Gold rim accent */}
-                  <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.8)]"></div>
-                </div>
-
-                {/* City Name */}
-                <h3 className="city-text text-4xl md:text-6xl lg:text-7xl font-display font-bold text-zinc-700 uppercase tracking-tighter mb-4 lg:mb-0 transition-colors z-10 relative">
-                  {boutique.city}
-                </h3>
-
-                {/* ADVANCED: Extra Details revealed on hover */}
-                <div className="item-details absolute right-10 top-1/2 -translate-y-1/2 flex items-center gap-6 text-zinc-600 z-10 opacity-0 translate-y-[10px] hidden lg:flex">
-                    <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-[#D4AF37]/50" />
-                        <span className="text-sm tracking-widest uppercase">{boutique.region}</span>
+                  {/* Typography & Layout */}
+                  <div className="flex items-center justify-between z-10 relative">
+                    <h3 className={`text-6xl font-display font-bold uppercase tracking-tighter transition-all duration-500 ease-out ${isActive ? 'translate-x-6 text-white' : 'translate-x-0 text-zinc-600'}`}>
+                      {boutique.city}
+                    </h3>
+                    
+                    {/* Extra Details */}
+                    <div className={`flex items-center gap-6 text-zinc-400 transition-all duration-500 ease-out ${isActive ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}>
+                        <div className="flex items-center gap-2">
+                            <Globe className="w-4 h-4 text-[#D4AF37]" />
+                            <span className="text-xs tracking-widest uppercase">{boutique.region}</span>
+                        </div>
+                        <div className="text-xs tracking-widest uppercase text-white/50">{boutique.timezone}</div>
                     </div>
-                    <div className="h-4 w-[1px] bg-zinc-800"></div>
-                    <div className="text-sm tracking-widest uppercase">{boutique.timezone}</div>
+                  </div>
                 </div>
-
-                {/* Mobile View details (static) */}
-                <div className="w-full flex lg:hidden items-center gap-4 text-xs tracking-widest uppercase text-zinc-600 z-10 relative">
-                    <MapPin className="w-3 h-3 text-[#D4AF37]" />
-                    <span>{boutique.status}</span>
-                    <span className="h-3 w-[1px] bg-zinc-800"></span>
-                    <span>{boutique.timezone}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Right Side: Appointment CTA Card */}
-          <div className="w-full lg:w-4/12 flex-shrink-0 lg:sticky top-[20vh] z-20 mt-10 lg:mt-0">
-            <div className="bg-[#0c0c0d] border border-white/5 rounded-3xl p-8 shadow-[0_20px_40px_rgba(0,0,0,0.6)] backdrop-blur-3xl relative overflow-hidden group hover:border-[#D4AF37]/30 transition-all duration-500">
-              {/* Subtle gold shine effect on hover */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#D4AF37]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none z-0"></div>
+          {/* Right Column: Visual Portal & CTA */}
+          <div className="col-span-6 relative h-full rounded-3xl overflow-hidden shadow-2xl border border-white/10 group bg-zinc-900">
+            
+            {/* The Stacked Image Portal */}
+            <div className="absolute inset-0 w-full h-full">
+              <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none"></div>
+              
+              {boutiques.map((boutique, index) => (
+                <div
+                  key={boutique.id}
+                  ref={el => imageWrappersRef.current[index] = el}
+                  // Init setup: first image is fully visible, rest are clipped to the bottom
+                  className="absolute inset-0 w-full h-full overflow-hidden"
+                  style={{ 
+                    clipPath: index === 0 ? 'inset(0% 0 0 0)' : 'inset(100% 0 0 0)',
+                    zIndex: index === 0 ? 1 : 0 
+                  }}
+                >
+                  <img 
+                    src={boutique.img} 
+                    alt={boutique.city} 
+                    // Scale animation happens infinitely on hover, entirely independent of the clip-path wipe
+                    className="w-full h-full object-cover scale-[1.02] group-hover:scale-110 transition-transform duration-[15s] ease-out"
+                  />
+                </div>
+              ))}
+            </div>
 
-              <div className="relative z-10 flex flex-col items-start">
-                  <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-8 shadow-inner group-hover:border-[#D4AF37]/50 transition-colors">
-                      <CalendarDays className="w-7 h-7 text-[#D4AF37]" />
-                  </div>
-                  
-                  <h4 className="text-2xl md:text-3xl font-display font-medium text-white tracking-tight mb-4 leading-snug">
-                    Schedule a <br/>Private <span className="text-[#D4AF37]">Viewing</span>
-                  </h4>
-                  
-                  <p className="text-zinc-400 text-sm md:text-base mb-8 leading-relaxed max-w-sm">
-                    Experience our timepieces firsthand. Book a dedicated appointment at your nearest flagship location.
-                  </p>
-                  
-                  <button className="w-full text-center px-6 py-4 bg-[#D4AF37] text-black font-semibold tracking-widest uppercase text-sm rounded-xl overflow-hidden transition-all duration-300 hover:bg-[#b89a30] hover:scale-[1.02] shadow-[0_10px_20px_rgba(212,175,55,0.2)]">
-                    Book Now
-                  </button>
+            {/* Floating Glass CTA Card (Animated with React Key) */}
+            <div className="absolute bottom-8 left-8 right-8 z-20 bg-[#0a0a0b]/80 backdrop-blur-2xl border border-white/10 rounded-2xl p-8 flex items-center justify-between transition-all duration-500 hover:border-[#D4AF37]/40">
+              <div key={activeBoutique.id} className="animate-[fadeIn_0.5s_ease-out_forwards]">
+                <p className="text-[#D4AF37] font-display text-xs tracking-[0.2em] uppercase mb-2 flex items-center gap-2">
+                  <MapPin className="w-3 h-3" /> {activeBoutique.status}
+                </p>
+                <h4 className="text-2xl font-display text-white mb-1">{activeBoutique.address}</h4>
               </div>
+              
+              <button className="w-14 h-14 rounded-full bg-[#D4AF37] flex shrink-0 items-center justify-center text-black hover:scale-110 hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all">
+                <ArrowRight className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
         </div>
 
+        {/* ========================================== */}
+        {/* MOBILE VIEW (Horizontal Snap Carousel)     */}
+        {/* ========================================== */}
+        <div className="mobile-carousel lg:hidden flex overflow-x-auto snap-x snap-mandatory gap-6 pb-12 w-[100vw] -ml-6 px-6 hide-scrollbar mt-6">
+          {boutiques.map((boutique) => (
+            <div 
+              key={boutique.id} 
+              className="snap-center shrink-0 w-[85vw] h-[60vh] relative rounded-3xl overflow-hidden border border-white/10"
+            >
+              <img 
+                src={boutique.img} 
+                alt={boutique.city} 
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+
+              <div className="absolute bottom-0 left-0 w-full p-6 flex flex-col">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="px-3 py-1 bg-[#D4AF37] text-black text-[10px] font-bold tracking-widest uppercase rounded-full">
+                    {boutique.status}
+                  </span>
+                  <span className="flex items-center gap-1 text-white/70 text-xs tracking-widest uppercase">
+                    <Clock className="w-3 h-3" /> {boutique.timezone}
+                  </span>
+                </div>
+
+                <h3 className="text-5xl font-display font-bold text-white tracking-tighter mb-2">
+                  {boutique.city}
+                </h3>
+                
+                <p className="text-zinc-400 text-sm mb-6 flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0 mt-0.5" />
+                  {boutique.address}
+                </p>
+
+                <button className="w-full py-4 rounded-xl border border-white/20 bg-white/5 backdrop-blur-md text-white font-medium tracking-widest uppercase text-xs flex items-center justify-center gap-2 active:bg-white/10 transition-colors">
+                  Book Appointment <CalendarDays className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
       </div>
+      
+      {/* Custom Styles for Mobile Scrollbar and Keyframe Animation */}
+      <style dangerouslySetInnerHTML={{__html: `
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}} />
     </section>
   );
 }

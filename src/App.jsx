@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import Lenis from 'lenis';
-import { Fade } from 'react-awesome-reveal';
 import Navbar from './components/ui/Navbar';
 import Hero from './components/sections/Hero'; 
 import Collections from './components/sections/Collections';
 import Craftsmanship from './components/sections/Craftsmanship';
-// Import the new Boutique section
 import Boutique from './components/sections/Boutique';
+// Import the final Legacy section
+import Legacy from './components/sections/Legacy';
 
 function App() {
   useEffect(() => {
@@ -31,32 +31,20 @@ function App() {
       
       <Navbar />
 
-      <main className="w-full">
-        {/* HERO SECTION */}
+      {/* CRITICAL PARALLAX SETUP: 
+        The main tag must have z-10 and a solid background (bg-black) 
+        so it slides cleanly over the top of the Legacy footer.
+      */}
+      <main className="w-full relative z-10 bg-black">
         <Hero />
-
-        {/* COLLECTIONS SECTION */}
         <Collections />
-
-        {/* CRAFTSMANSHIP SECTION */}
         <Craftsmanship />
-
-        {/* BOUTIQUE SECTION - Replaced the old one */}
         <Boutique />
-
-        {/* LEGACY / FOOTER SECTION */}
-        <section 
-          id="legacy" 
-          className="relative w-full min-h-screen flex items-center justify-center bg-black"
-        >
-          <Fade direction="up" triggerOnce>
-            <h2 className="text-4xl md:text-6xl font-display font-medium text-zinc-600 tracking-widest uppercase">
-              <span className="text-[#D4AF37] text-2xl align-top mr-4">04.</span> 
-              Legacy
-            </h2>
-          </Fade>
-        </section>
       </main>
+
+      {/* LEGACY / FOOTER SECTION */}
+      {/* Placed outside of main to ensure it acts as the foundational base layer */}
+      <Legacy />
       
     </div>
   );
