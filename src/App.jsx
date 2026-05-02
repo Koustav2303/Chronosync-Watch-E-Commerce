@@ -5,6 +5,7 @@ import Hero from './components/sections/Hero';
 import Collections from './components/sections/Collections';
 import Craftsmanship from './components/sections/Craftsmanship';
 import Boutique from './components/sections/Boutique';
+import Anatomy from './components/sections/Anatomy';
 // Import the final Legacy section
 import Legacy from './components/sections/Legacy';
 
@@ -38,6 +39,7 @@ function App() {
       <main className="w-full relative z-10 bg-black">
         <Hero />
         <Collections />
+        <Anatomy />
         <Craftsmanship />
         <Boutique />
       </main>
